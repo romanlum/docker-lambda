@@ -7,5 +7,5 @@ base/dump-java8/target
 examples/java/build
 examples/java/target
 examples/java/bin
-dotnetcore2.0/run/bin
-dotnetcore2.0/run/obj
+dotnetcore2.0/run/**/bin
+dotnetcore2.0/run/**/obj
