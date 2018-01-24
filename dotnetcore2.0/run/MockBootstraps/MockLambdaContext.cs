@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -60,10 +61,10 @@ namespace MockLambdaRuntime
             return TimeSpan.FromSeconds(Timeout - (StartTime - DateTime.Now).TotalSeconds);
         }
 
-        public long BilledTime()
-        {
-            Math.Round((StartTime - DateTime.Now).TotalMilliseconds,
-        }
+        public long Duration => (long)(DateTime.Now - StartTime).TotalMilliseconds;
+        public long BilledDuration => (long) (Math.Ceiling((DateTime.Now - StartTime).TotalMilliseconds / 100)) * 100;
+
+        public long MemoryUsed => Process.GetCurrentProcess().WorkingSet64;
 
         /// <summary>
         /// Gets the arn for the lambda function

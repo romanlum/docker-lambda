@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
-using System.Runtime.Loader;
-using System.Text;
 using AWSLambda.Internal.Bootstrap;
 using AWSLambda.Internal.Bootstrap.Context;
 
@@ -71,6 +68,7 @@ namespace MockLambdaRuntime
         static void LogEndRequest(MockLambdaContext context)
         {
             Console.Error.WriteLine($"END  RequestId: {context.RequestId}");
+            
             /*'REPORT RequestId: ' + invokeId,
             'Duration: ' + diffMs.toFixed(2) + ' ms',
             'Billed Duration: ' + billedMs + ' ms',
@@ -78,7 +76,11 @@ namespace MockLambdaRuntime
             'Max Memory Used: ' + Math.round(process.memoryUsage().rss / (1024 * 1024)) + ' MB',
             '',
                 ].join('\t'))*/
-            //Console.Error.WriteLine($"REPORT RequestId {context.RequestId}\tDuration: {context}");
+            Console.Error.WriteLine($"REPORT RequestId {context.RequestId}\t" +
+                                    $"Duration: {context.Duration} ms\t" +
+                                    $"Billed Duration: {context.BilledDuration} ms\t" +
+                                    $"Memory Size {context.MemorySize} MB\t" +
+                                    $"Max Memory Used: {context.MemoryUsed/(1024*1024)} MB");
         }
 
         /// <summary>
