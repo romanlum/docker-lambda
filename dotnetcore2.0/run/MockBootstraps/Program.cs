@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 using AWSLambda.Internal.Bootstrap;
 using AWSLambda.Internal.Bootstrap.Context;
 
@@ -8,18 +10,27 @@ namespace MockLambdaRuntime
     class Program
     {
         /// <summary>
+        /// Task root of lambda task
+        /// </summary>
+        private static string lambdaTaskRoot;
+
+        /// <summary>
         /// Entry point
         /// </summary>
         /// <param name="args">The arguments.</param>
         static void Main(string[] args)
         {
+            //add resolving hook
+            AssemblyLoadContext.Default.Resolving += OnAssemblyResolving;
+            lambdaTaskRoot = GetEnvironmentVariable("LAMBDA_TASK_ROOT", "/var/task");
+
             string handler = GetFunctionHandler(args);
             string body = GetContext(args);
 
             var lambdaContext = new MockLambdaContext(body, Environment.GetEnvironmentVariables());
             
-            Assembly.LoadFrom (new HandlerInfo(handler).AssemblyName.FullName);
-            var userCodeLoader = new UserCodeLoader(handler,InternalLogger.CONSOLE_LOGGER);
+            
+            var userCodeLoader = new UserCodeLoader(handler,InternalLogger.NO_OP_LOGGER);
             userCodeLoader.Init(x => Console.WriteLine(x));
 
             var lambdaContextInternal = new LambdaContextInternal(lambdaContext.RemainingTime,
@@ -41,6 +52,17 @@ namespace MockLambdaRuntime
                 Console.Error.WriteLine(ex);
             }
             LogEndRequest(lambdaContext);
+        }
+
+        /// <summary>
+        /// Called when an assembly could not be resolved
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="assembly">The assembly.</param>
+        /// <returns></returns>
+        private static Assembly OnAssemblyResolving(AssemblyLoadContext context, AssemblyName assembly)
+        {
+            return context.LoadFromAssemblyPath(Path.Combine(lambdaTaskRoot, assembly.Name) + ".dll");
         }
 
         /// <summary>
